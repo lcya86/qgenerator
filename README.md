@@ -1,5 +1,6 @@
 Qgenerator
 ==============
+## python version: 3.6.3
 
 ## Install dependencies  
 
