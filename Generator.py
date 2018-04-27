@@ -47,11 +47,11 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "h")
     except getopt.GetoptError:
-        print('genstion.py <paragraph>')
+        print('Generator.py <paragraph>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('genstion.py <paragraph>')
+            print('Generator.py <paragraph>')
             sys.exit()
 
     if(len(argv) == 1):

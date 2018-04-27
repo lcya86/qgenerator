@@ -1,12 +1,29 @@
+import sys
+import getopt
 from sklearn import tree
 from CreateDataset import creatDataSet
 import numpy as np
 from sklearn import preprocessing
 from Common import analysisParagraph
+import csv
+from collections import namedtuple
 
 
 clf = tree.DecisionTreeClassifier()
 le = preprocessing.LabelEncoder()
+
+def getQuestionText(index):
+    # input questions data
+    questions = []
+    with open('data/questions.csv') as f:
+        f_csv = csv.reader(f)
+        headers = next(f_csv)
+        Row = namedtuple('Row', headers)
+        for r in f_csv:
+            row = Row(*r)
+            questions.append(row)
+
+    return questions[index-2].question
 
 
 def classify(text):
@@ -19,11 +36,29 @@ def classify(text):
         ]
     ])
     print(result)
+    print(getQuestionText(int(result[0])))
 
 
-if __name__ == '__main__':
+def main(argv):
+    try:
+        opts, args = getopt.getopt(argv, "h")
+    except getopt.GetoptError:
+        print('SklearnDT.py <paragraph>')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print('SklearnDT.py <paragraph>')
+            sys.exit()
+
+    if(len(argv) == 1):
+        classify(argv[0])
+    else:
+        print('<paragraph> is one single string')
+
+
+if __name__ == "__main__":
     dataset = np.array(creatDataSet())
-    print(dataset)
+    # print(dataset)
 
     # dataset[:,3] = le.fit_transform(dataset[:,3])
     dataset[:, 6] = le.fit_transform(dataset[:, 6])
@@ -32,5 +67,5 @@ if __name__ == '__main__':
     print('training.....')
     print('\n')
     clf = clf.fit(dataset[:, 4:], dataset[:, 2])
-
-    classify('We are a long way from conclusion on North Korea, maybe things will work out, and maybe they won’t - only time will tell....But the work I am doing now should have been done a long time ago!')
+    
+    main(sys.argv[1:])
