@@ -37,6 +37,19 @@ def classify(text):
     ])
     print(result)
     print(getQuestionText(int(result[0])))
+    return getQuestionText(int(result[0]))
+
+def lambda_handler(event,context):
+    dataset = np.array(creatDataSet())
+    # print(dataset)
+
+    # dataset[:,3] = le.fit_transform(dataset[:,3])
+    dataset[:, 6] = le.fit_transform(dataset[:, 6])
+    dataset[:, 7] = le.fit_transform(dataset[:, 7])
+
+    clf = clf.fit(dataset[:, 4:], dataset[:, 2])
+    
+    return classify(event['text'])
 
 
 def main(argv):
