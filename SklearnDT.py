@@ -1,4 +1,7 @@
 import sys
+import imp
+sys.modules["sqlite"] = imp.new_module("sqlite")
+sys.modules["sqlite3.dbapi2"] = imp.new_module("sqlite.dbapi2")
 import getopt
 from sklearn import tree
 from CreateDataset import creatDataSet
@@ -7,6 +10,10 @@ from sklearn import preprocessing
 from Common import analysisParagraph
 import csv
 from collections import namedtuple
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('averaged_perceptron_tagger')
 
 
 clf = tree.DecisionTreeClassifier()
