@@ -11,13 +11,41 @@ from Common import analysisParagraph
 import csv
 from collections import namedtuple
 import nltk
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('averaged_perceptron_tagger')
 
 
-clf = tree.DecisionTreeClassifier()
-le = preprocessing.LabelEncoder()
+nltk.data.path.append('/tmp')
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt',download_dir='/tmp')
+
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords',download_dir='/tmp')
+
+try:
+    nltk.data.find('taggers/averaged_perceptron_tagger')
+except LookupError:
+    nltk.download('averaged_perceptron_tagger',download_dir='/tmp')
+
+
+
+def predict(text):
+    clf = tree.DecisionTreeClassifier()
+    le = preprocessing.LabelEncoder()
+    dataset = np.array(creatDataSet())
+    # print(dataset)
+
+    # dataset[:,3] = le.fit_transform(dataset[:,3])
+    dataset[:, 6] = le.fit_transform(dataset[:, 6])
+    dataset[:, 7] = le.fit_transform(dataset[:, 7])
+
+    clf = clf.fit(dataset[:, 4:], dataset[:, 2])
+    
+    return classify(text,clf,le)
+    
+
 
 def getQuestionText(index):
     # input questions data
@@ -33,7 +61,7 @@ def getQuestionText(index):
     return questions[index-2].question
 
 
-def classify(text):
+def classify(text,clf,le):
     result = clf.predict([
         [
             analysisParagraph(text)[1],
@@ -47,16 +75,7 @@ def classify(text):
     return getQuestionText(int(result[0]))
 
 def lambda_handler(event,context):
-    dataset = np.array(creatDataSet())
-    # print(dataset)
-
-    # dataset[:,3] = le.fit_transform(dataset[:,3])
-    dataset[:, 6] = le.fit_transform(dataset[:, 6])
-    dataset[:, 7] = le.fit_transform(dataset[:, 7])
-
-    clf = clf.fit(dataset[:, 4:], dataset[:, 2])
-    
-    return classify(event['text'])
+    return predict(event['text'])
 
 
 def main(argv):
@@ -71,21 +90,10 @@ def main(argv):
             sys.exit()
 
     if(len(argv) == 1):
-        classify(argv[0])
+        predict(argv[0])
     else:
         print('<paragraph> is one single string')
 
 
 if __name__ == "__main__":
-    dataset = np.array(creatDataSet())
-    # print(dataset)
-
-    # dataset[:,3] = le.fit_transform(dataset[:,3])
-    dataset[:, 6] = le.fit_transform(dataset[:, 6])
-    dataset[:, 7] = le.fit_transform(dataset[:, 7])
-
-    print('training.....')
-    print('\n')
-    clf = clf.fit(dataset[:, 4:], dataset[:, 2])
-    
     main(sys.argv[1:])
